@@ -98,26 +98,65 @@ describe('Redis client tests', function () {
             done();
         });
     });
-    it('updateCount should set value and increase it', function (done) {
+    it('updateCount should set value from number', function (done) {
         //mock
         var mValue = null;
         redis.redisClient.set = function (key, value) { mValue = value; }
         redis.redisClient.get = function (key, callback) { callback(null, mValue); }
 
         //increase from null
-        redis.updateCount();
+        redis.updateCount(1);
         assert.equal(mValue, 1);
         //increase by 1
-        redis.updateCount();
-        assert.equal(mValue, 2);
+        redis.updateCount(2);
+        assert.equal(mValue, 3);
         //increase by 2
-        redis.updateCount();
-        redis.updateCount();
-        assert.equal(mValue, 4);
+        redis.updateCount(1);
+        redis.updateCount(1);
+        assert.equal(mValue, 5);
         //increase from higher value
         mValue = 10;
-        redis.updateCount();
-        assert.equal(mValue, 11);
+        redis.updateCount(5);
+        assert.equal(mValue, 15);
+        done();
+    });
+    it('updateCount should set value from string', function (done) {       
+        //mock
+        var mValue = null;
+        redis.redisClient.set = function (key, value) { mValue = value; }
+        redis.redisClient.get = function (key, callback) { callback(null, mValue); }
+
+        //increase from null
+        redis.updateCount("2");
+        assert.equal(mValue, 2);
+        //increase by 1
+        redis.updateCount("2");
+        assert.equal(mValue, 4);
+        //increase by 2
+        redis.updateCount("1");
+        redis.updateCount("1");
+        assert.equal(mValue, 6);
+        //increase from higher value
+        mValue = 10;
+        redis.updateCount("1000");
+        assert.equal(mValue, 1010);
+        done();
+    });
+    it('updateCount should fail with incorrect value', function (done) {
+        //mock
+        var mValue = null;
+        redis.redisClient.set = function (key, value) { mValue = value; }
+        redis.redisClient.get = function (key, callback) { callback(null, mValue); }
+
+        //increase from null, incorrect
+        redis.updateCount("incorrect");
+        assert.equal(mValue, null);
+        //increase by 1
+        redis.updateCount(1);
+        assert.equal(mValue, 1);
+        //increase by incorrect
+        redis.updateCount("");
+        assert.equal(mValue, 1);
         done();
     });
 });
