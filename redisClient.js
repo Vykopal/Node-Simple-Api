@@ -8,17 +8,19 @@ redisClient.on("error", helpers.logError.bind({ message: "Redis returned an erro
 redisClient.on("ready", function () { console.log("Redis is ready.") });
 redisClient.on("reconnecting", function () { console.log("Redis is reconnecting.") });
 
-function updateCount() {
-    redisClient.get(redisCountKey, function (err, reply) {
-        if (err) helpers.logError(err);
-        if (reply && !isNaN(reply)) {
-            var prevCount = Number(reply) + 1;
-            redisClient.set(redisCountKey, prevCount);
-        }
-        else {
-            redisClient.set(redisCountKey, 1);
-        }
-    });
+function updateCount(value) {
+    if (value && !isNaN(value)) {
+        redisClient.get(redisCountKey, function (err, reply) {
+            if (err) helpers.logError(err);
+            if (reply && !isNaN(reply)) {
+                var newCount = Number(reply) + Number(value);
+                redisClient.set(redisCountKey, newCount);
+            }
+            else {
+                redisClient.set(redisCountKey, value);
+            }
+        });
+    }
 }
 function getCount(callback) {
     redisClient.get(redisCountKey, callback);

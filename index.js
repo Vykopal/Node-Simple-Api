@@ -7,7 +7,7 @@ function trackRespond(req, res, next) {
     var body = req.body && typeof req.body === "object" && req.body;
     if (body) {
         helpers.appendToFile(body);
-        body.count && redisClient.updateCount();
+        body.count && redisClient.updateCount(body.count);
         res.send(body);
     }
     else res.send();
